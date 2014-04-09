@@ -1,4 +1,5 @@
 # For scrape Haodoo (http://www.haodoo.net)
+# -*- coding: utf-8 -*-
 import scraperwiki
 import simplejson
 import lxml.html
@@ -72,7 +73,7 @@ def extract_set_title( html ):
         return ("", "")
 
     set_title = html[ start_quote+1: end_quote-1 ]
-    set_title = set_title.replace( '��', ',' )
+    set_title = set_title.replace( '《', ',' )
     r = set_title.split(',')
     if len(r)!=2:
         return ("", "" )
