@@ -61,10 +61,9 @@ def convert_to_dl_url(_id, ext):
     """
     According book_id and book type to generate download url.
     """
-    # TODO
-    result = base_url + "/?" + urlencode({
+    result = urljoin(base_url, '?{}'.format(urlencode({
         "M": "d",
-        "P": _id + "." + ext})
+        "P": _id + "." + ext})))
     #print("__convert_to_dl_url()=%s" % result)
     return result
 
@@ -100,7 +99,7 @@ def analysis_book_html_and_save(book, html):
         save_item = pdb_download_elements[0]
         title = save_item.getprevious().text
         author = None
-        if save_item and save_item.getprevious() and \
+        if save_item is not None and save_item.getprevious() and \
                 save_item.getprevious().getprevious():
             author = save_item.getprevious().getprevious().text
         volume = {
