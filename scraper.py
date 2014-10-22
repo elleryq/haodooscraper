@@ -191,7 +191,6 @@ def main():
                 page = 1
                 while True:
                     suburl = "{0}-{1}".format(url, page)
-                    print(type(html))
                     if html.find(suburl[suburl.find('?'):]):
                         html = scraperwiki.scrape(suburl)
                         if html.find("<strong>404") != -1:
