@@ -26,8 +26,8 @@ def parse_books_from_html(html):
         book_title = a.text_content()
 
         d = parse_qs(urlparse(href).query)
-        if d.has_key('M') and d['M'][0] in ('book', 'Share'):
-            if d.has_key('P'):
+        if 'M' in d and d['M'][0] in ('book', 'Share'):
+            if 'P' in d:
                 book_id = d['P'][0]
                 book = {'id': book_id,
                         'url': href,
@@ -129,8 +129,7 @@ def analysis_book_html_and_save(book, html):
         exts = []
         for save_item in doc.xpath('//input[contains(@type, "button")]'):
             onclick = save_item.get('onclick')
-            id = find_volume_id(onclick)
-            skip = False
+            _id = find_volume_id(onclick)
             if "ReadOnline" in onclick or "ReadPdbOnline" in onclick:
                 if volume is not None:
                     for ext in exts:
@@ -143,21 +142,21 @@ def analysis_book_html_and_save(book, html):
                         data=volume,
                         table_name="bookvolumes")
                 volume = {
-                    'id': id,
+                    'id': _id,
                     'author': save_item.getprevious().text,
                     'title': save_item.getprevious().tail,
                     'bookid': book['id'],
                 }
                 exts = []
             elif "DownloadEpub" in onclick:
-                dl_link = convert_to_dl_url(id, "epub")
-                exts.append({"volumeid": id, "type": "epub", "link": dl_link})
+                dl_link = convert_to_dl_url(_id, "epub")
+                exts.append({"volumeid": _id, "type": "epub", "link": dl_link})
             elif "DownloadUpdb" in onclick:
-                dl_link = convert_to_dl_url(id, "updb")
-                exts.append({"volumeid": id, "type": "updb", "link": dl_link})
+                dl_link = convert_to_dl_url(_id, "updb")
+                exts.append({"volumeid": _id, "type": "updb", "link": dl_link})
             elif "DownloadPdb" in onclick:
-                dl_link = convert_to_dl_url(id, "pdb")
-                exts.append({"volumeid": id, "type": "pdb", "link": dl_link})
+                dl_link = convert_to_dl_url(_id, "pdb")
+                exts.append({"volumeid": _id, "type": "pdb", "link": dl_link})
         if volume:
             for ext in exts:
                 scraperwiki.sqlite.save(unique_keys=["volumeid", "type"],
@@ -192,6 +191,7 @@ def main():
                 page = 1
                 while True:
                     suburl = "{0}-{1}".format(url, page)
+                    print(type(html))
                     if html.find(suburl[suburl.find('?'):]):
                         html = scraperwiki.scrape(suburl)
                         if html.find("<strong>404") != -1:
