@@ -3,7 +3,7 @@
 from __future__ import print_function
 import scraperwiki
 import lxml.html
-from urlparse import parse_qs, urljoin, urlparse
+from urlparse import parse_qs, urljoin, urlparse, urlunparse
 from urllib import urlencode
 import traceback
 
@@ -18,6 +18,8 @@ def parse_books_from_html(html):
     """
     root = lxml.html.fromstring(html)
     for a in root.cssselect("a"):
+        if not 'href' in a.attrib:
+            continue
         href = a.attrib['href']
         if href.startswith("javascript"):
             continue
@@ -61,11 +63,11 @@ def convert_to_dl_url(_id, ext):
     """
     According book_id and book type to generate download url.
     """
-    result = urljoin(base_url, '?{}'.format(urlencode({
+    result = list(urlparse(base_url))
+    result[4] = urlencode({
         "M": "d",
-        "P": _id + "." + ext})))
-    #print("__convert_to_dl_url()=%s" % result)
-    return result
+        "P": "{0}.{1}".format(_id, ext)})
+    return urlunparse(result)
 
 
 def extract_set_title(html):
@@ -167,31 +169,70 @@ def analysis_book_html_and_save(book, html):
                                     table_name="bookvolumes")
 
 
+def urls():
+    params = [
+        {"M": "hhd", "P": "home"},
+        {"M": "guru", "P": "home"},
+        {"M": "ting", "P": "1"},
+        {"M": "yulin", "P": "home"},
+        {"M": "fay-mon", "P": "home"},
+        {"M": "anna", "P": "home"},
+        {"M": "hwarong", "P": "1"},
+        {"M": "foch", "P": "home"},
+        {"M": "long", "P": "home"},
+        {"M": "kuan", "P": "1"},
+        {"M": "ken", "P": "home"},
+        {"M": "marina", "P": "home"},
+
+        {"M": "hd", "P": "100"},
+        {"M": "hd", "P": "wisdom"},
+        {"M": "hd", "P": "history"},
+        {"M": "hd", "P": "martial"},
+        {"M": "hd", "P": "mystery"},
+        {"M": "hd", "P": "romance"},
+        {"M": "hd", "P": "scifi"},
+        {"M": "hd", "P": "fiction"},
+    ]
+
+    pr = list(urlparse(base_url))
+    for param in params:
+        pr[4] = urlencode(param)
+        yield urlunparse(pr)
+
+
+def get_suburl(url, page):
+    """
+    There are sub pages in every category, need to append '-1', '-2' in P.
+    So http://www.haodoo.net/?M=hd&P=martial will be
+    http://www.haodoo.net/?M=hd&P=martial-1
+    """
+    pr = list(urlparse(url))
+    param = parse_qs(pr[4])
+    for k, v in param.items():
+        param[k] = v[0]
+    param["P"] = "{0}-{1}".format(param["P"], page)
+    pr[4] = urlencode(param)
+    return urlunparse(pr)
+
+
 def main():
     """
     Main
     """
-    urls = [
-        'http://www.haodoo.net/?M=hd&P=wisdom',
-        'http://www.haodoo.net/?M=hd&P=history',
-        'http://www.haodoo.net/?M=hd&P=martial',
-        'http://www.haodoo.net/?M=hd&P=mystery',
-        'http://www.haodoo.net/?M=hd&P=romance',
-        'http://www.haodoo.net/?M=hd&P=scifi',
-        'http://www.haodoo.net/?M=hd&P=fiction',
-    ]
-
     skip_stage1 = False
     try:
         print(">>> Stage 1 - Collecting all book urls <<<")
         if not skip_stage1:
-            for url in urls:
+            for url in urls():
+                print(url)
                 html = scraperwiki.scrape(url)
+                parse_books_from_html(html)
 
                 page = 1
                 while True:
-                    suburl = "{0}-{1}".format(url, page)
-                    if html.find(suburl[suburl.find('?'):]):
+                    suburl = get_suburl(url, page)
+                    print(suburl)
+                    if html.find(urlparse(suburl).query):
                         html = scraperwiki.scrape(suburl)
                         if html.find("<strong>404") != -1:
                             break
@@ -215,4 +256,5 @@ def main():
         print(e)
         print(traceback.format_exc())
 
-main()
+if __name__ == "__main__":
+    main()
