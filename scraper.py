@@ -1,6 +1,8 @@
 # For scrape Haodoo (http://www.haodoo.net)
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+from multiprocessing import Pool
+from datetime import datetime
 import scraperwiki
 import lxml.html
 from urlparse import parse_qs, urljoin, urlparse, urlunparse
@@ -99,11 +101,11 @@ def analysis_book_html_and_save(book, html):
     if len(pdb_download_elements):
         # old style page, only readonline and download link.
         save_item = pdb_download_elements[0]
-        title = save_item.getprevious().text
+        save_item_previous = save_item.getprevious()
+        title = save_item_previous.text
         author = None
-        if save_item is not None and save_item.getprevious() and \
-                save_item.getprevious().getprevious():
-            author = save_item.getprevious().getprevious().text
+        if save_item_previous.getprevious() is not None:
+            author = save_item_previous.getprevious().text
         volume = {
             'id': book['id'],
             'bookid': book['id'],
@@ -117,16 +119,13 @@ def analysis_book_html_and_save(book, html):
         else:
             volume['author'] = volume_author
 
-        scraperwiki.sqlite.save(
-            unique_keys=["volumeid", "type"],
-            data={"volumeid": book['id'],
-                  "type": "pdb",
-                  "link": urljoin(base_url, save_item.attrib['href'])},
-            table_name="volumeexts")
-        scraperwiki.sqlite.save(unique_keys=["id"],
-                                data=volume,
-                                table_name="bookvolumes")
+        volume['exts'] = [{"volumeid": book['id'],
+                           "type": "pdb",
+                           "link": urljoin(base_url,
+                                           save_item.attrib['href'])}]
+        return [volume]
     else:
+        volumes = []
         volume = None
         exts = []
         for save_item in doc.xpath('//input[contains(@type, "button")]'):
@@ -134,15 +133,8 @@ def analysis_book_html_and_save(book, html):
             _id = find_volume_id(onclick)
             if "ReadOnline" in onclick or "ReadPdbOnline" in onclick:
                 if volume is not None:
-                    for ext in exts:
-                        scraperwiki.sqlite.save(
-                            unique_keys=["volumeid", "type"],
-                            data=ext,
-                            table_name="volumeexts")
-                    scraperwiki.sqlite.save(
-                        unique_keys=["id"],
-                        data=volume,
-                        table_name="bookvolumes")
+                    volume['exts'] = exts
+                    volumes.append(volume)
                 volume = {
                     'id': _id,
                     'author': save_item.getprevious().text,
@@ -160,13 +152,9 @@ def analysis_book_html_and_save(book, html):
                 dl_link = convert_to_dl_url(_id, "pdb")
                 exts.append({"volumeid": _id, "type": "pdb", "link": dl_link})
         if volume:
-            for ext in exts:
-                scraperwiki.sqlite.save(unique_keys=["volumeid", "type"],
-                                        data=ext,
-                                        table_name="volumeexts")
-            scraperwiki.sqlite.save(unique_keys=["id"],
-                                    data=volume,
-                                    table_name="bookvolumes")
+            volume['exts'] = exts
+            volumes.append(volume)
+        return volumes
 
 
 def urls():
@@ -215,13 +203,22 @@ def get_suburl(url, page):
     return urlunparse(pr)
 
 
+def grab_and_analysis(book):
+    # grab html
+    html = scraperwiki.scrape(book['url'])
+
+    # analysis and store information into book
+    return analysis_book_html_and_save(book, html)
+
+
 def main():
     """
     Main
     """
     skip_stage1 = False
     try:
-        print(">>> Stage 1 - Collecting all book urls <<<")
+        print(">>> Stage 1 - Collecting all book urls {}<<<".format(
+            datetime.now()))
         if not skip_stage1:
             for url in urls():
                 print(url)
@@ -241,15 +238,30 @@ def main():
                     else:
                         break
 
-        print(">>> Stage 2 - Analysising all book urls <<<")
-        for book in scraperwiki.sqlite.select("* from bookpages"):
-            # grab html
-            html = scraperwiki.scrape(book['url'])
+        print(">>> Stage 2 - Analysising all book urls {}<<<".format(
+            datetime.now()))
+        #p = Pool()
+        #results = p.map(grab_and_analysis,
+        #                scraperwiki.sqlite.select("* from bookpages"))
+        results = map(grab_and_analysis,
+                      scraperwiki.sqlite.select("* from bookpages"))
 
-            # analysis and store information into book
-            analysis_book_html_and_save(book, html)
+        print(">>> Stage 3 - Saving results {}<<<".format(
+            datetime.now()))
+        for volumes in results:
+            for volume in volumes:
+                for ext in volume['exts']:
+                    scraperwiki.sqlite.save(
+                        unique_keys=["volumeid", "type"],
+                        data=ext,
+                        table_name="volumeexts")
+                del volume['exts']
+                scraperwiki.sqlite.save(
+                    unique_keys=["id"],
+                    data=volume,
+                    table_name="bookvolumes")
 
-        print(">>> State 3 - done <<<")
+        print(">>> State 4 - done {}<<<".format(datetime.now()))
 
     except Exception, e:
         print("Got exception:")
