@@ -3,12 +3,18 @@
 from __future__ import print_function
 from multiprocessing import Pool
 from datetime import datetime
+import re
 import scraperwiki
 import lxml.html
 from urlparse import parse_qs, urljoin, urlparse, urlunparse
 from urllib import urlencode
 import traceback
 
+# DownloadPdb('A435')
+ONCLICK_PATTERN = re.compile(
+    "(?P<quote>[\"'])(?P<_id>[^(?P=quote)]*)(?P=quote)")
+SET_TITLE_PATTERN = re.compile(
+    "SetTitle\((?P<quote>[\"'])(?P<title>[^(?P=quote)]*)(?P=quote)\)")
 base_url = 'http://www.haodoo.net/'
 
 
@@ -52,13 +58,29 @@ def find_volume_id(onclick):
     if start == -1:
         quote = '"'
 
-    id = ''
+    _id = ''
     start = onclick.find(quote)
     end = onclick.rfind(quote)
     if start != -1 and end != -1:
-        id = onclick[start+1:end]
+        _id = onclick[start+1:end]
 
-    return id
+    return _id
+
+
+def find_volume_id_2(onclick):
+    """
+    Find book id from the given string.  The string actually is javascript
+    function.
+    Regular expression version is slower than string find.
+    """
+    m = ONCLICK_PATTERN.search(onclick)
+    if not m:
+        return ""
+
+    if m.group("_id"):
+        return m.group("_id")
+
+    return ""
 
 
 def convert_to_dl_url(_id, ext):
@@ -93,9 +115,31 @@ def extract_set_title(html):
     return r
 
 
+def extract_set_title_2(html):
+    m = SET_TITLE_PATTERN.search(html)
+    author = ""
+    title = ""
+    if not m:
+        return (author, title)
+
+    if m.group("title"):
+        title = m.group("title")
+        title = title.replace(
+            '【', ',').replace(
+                '《', ',').replace(
+                    '】', '').replace(
+                        '》', '')
+        r = title.split(',')
+        if len(r) > 1:
+            author = r[0]
+            title = r[1]
+
+    return (author, title)
+
+
 def analysis_book_html_and_save(book, html):
     doc = lxml.html.fromstring(html)
-    volume_author, volume_name = extract_set_title(html)
+    volume_author, volume_name = extract_set_title_2(html)
 
     pdb_download_elements = doc.xpath('//a[contains(@href, "pdb")]')
     if len(pdb_download_elements):
@@ -130,7 +174,7 @@ def analysis_book_html_and_save(book, html):
         exts = []
         for save_item in doc.xpath('//input[contains(@type, "button")]'):
             onclick = save_item.get('onclick')
-            _id = find_volume_id(onclick)
+            _id = find_volume_id_2(onclick)
             if "ReadOnline" in onclick or "ReadPdbOnline" in onclick:
                 if volume is not None:
                     volume['exts'] = exts
@@ -221,14 +265,14 @@ def main():
             datetime.now()))
         if not skip_stage1:
             for url in urls():
-                print(url)
+                # print(url)
                 html = scraperwiki.scrape(url)
                 parse_books_from_html(html)
 
                 page = 1
                 while True:
                     suburl = get_suburl(url, page)
-                    print(suburl)
+                    #print(suburl)
                     if html.find(urlparse(suburl).query):
                         html = scraperwiki.scrape(suburl)
                         if html.find("<strong>404") != -1:
@@ -240,11 +284,11 @@ def main():
 
         print(">>> Stage 2 - Analysising all book urls {}<<<".format(
             datetime.now()))
-        #p = Pool()
-        #results = p.map(grab_and_analysis,
-        #                scraperwiki.sqlite.select("* from bookpages"))
-        results = map(grab_and_analysis,
-                      scraperwiki.sqlite.select("* from bookpages"))
+        p = Pool()
+        results = p.map(grab_and_analysis,
+                        scraperwiki.sqlite.select("* from bookpages"))
+        #results = map(grab_and_analysis,
+        #              scraperwiki.sqlite.select("* from bookpages"))
 
         print(">>> Stage 3 - Saving results {}<<<".format(
             datetime.now()))
