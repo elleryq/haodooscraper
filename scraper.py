@@ -1,9 +1,10 @@
 # For scrape Haodoo (http://www.haodoo.net)
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 from multiprocessing import Pool
 from datetime import datetime
 import re
+import requests
 import scraperwiki
 import lxml.html
 from urlparse import parse_qs, urljoin, urlparse, urlunparse
@@ -16,6 +17,12 @@ ONCLICK_PATTERN = re.compile(
 SET_TITLE_PATTERN = re.compile(
     "SetTitle\((?P<quote>[\"'])(?P<title>[^(?P=quote)]*)(?P=quote)\)")
 base_url = 'http://www.haodoo.net/'
+
+
+def scrape(url):
+    r = requests.get(url)
+    r.encoding = "big5"
+    return r.text
 
 
 def parse_books_from_html(html):
@@ -249,7 +256,7 @@ def get_suburl(url, page):
 
 def grab_and_analysis(book):
     # grab html
-    html = scraperwiki.scrape(book['url'])
+    html = scrape(book['url'])
 
     # analysis and store information into book
     return analysis_book_html_and_save(book, html)
@@ -266,7 +273,7 @@ def main():
         if not skip_stage1:
             for url in urls():
                 # print(url)
-                html = scraperwiki.scrape(url)
+                html = scrape(url)
                 parse_books_from_html(html)
 
                 page = 1
@@ -274,7 +281,7 @@ def main():
                     suburl = get_suburl(url, page)
                     #print(suburl)
                     if html.find(urlparse(suburl).query):
-                        html = scraperwiki.scrape(suburl)
+                        html = scrape(suburl)
                         if html.find("<strong>404") != -1:
                             break
                         parse_books_from_html(html)
