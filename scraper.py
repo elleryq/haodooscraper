@@ -5,8 +5,8 @@ from multiprocessing import Pool
 from datetime import datetime
 import re
 import requests
-import scraperwiki
 import lxml.html
+from model import Page, Volume, session
 from urlparse import parse_qs, urljoin, urlparse, urlunparse
 from urllib import urlencode
 import traceback
@@ -25,11 +25,35 @@ def scrape(url):
     return r.text
 
 
+def save_bookpages(book_dict):
+    """
+    book_dict is a dict, contain these keys: id, url, title.
+    """
+    if Page.is_existed(book_dict['id']):
+        return
+    book = Page.create(book_dict)
+    session.add(book)
+    session.commit()
+
+
+def save_volume(volume_dict):
+    """
+    volume_dict is a dict, contain the keys: id, author, title, bookid, exts.
+    exts is a list contain dicts.  The element contain these keys:
+    volumeid, type, link.
+    """
+    if Volume.is_existed(volume_dict['id']):
+        return
+
+    volume = Volume.create(volume_dict)
+    session.add(volume)
+    session.commit()
+
+
 def parse_books_from_html(html):
     """
     Parse the url of each book from the book list page.
-    The book's title and url will be stored in sqlite database provided
-    by scraperwiki.
+    The book's title and url will be stored in database.
     """
     root = lxml.html.fromstring(html)
     for a in root.cssselect("a"):
@@ -49,9 +73,7 @@ def parse_books_from_html(html):
                 book = {'id': book_id,
                         'url': href,
                         'title': book_title}
-                scraperwiki.sqlite.save(unique_keys=["id"],
-                                        data=book,
-                                        table_name="bookpages")
+                save_bookpages(book)
 
 
 def find_volume_id(onclick):
@@ -158,8 +180,8 @@ def analysis_book_html_and_save(book, html):
         if save_item_previous.getprevious() is not None:
             author = save_item_previous.getprevious().text
         volume = {
-            'id': book['id'],
-            'bookid': book['id'],
+            'id': book.id,
+            'bookid': book.id,
         }
         if title:
             volume['title'] = title
@@ -170,7 +192,7 @@ def analysis_book_html_and_save(book, html):
         else:
             volume['author'] = volume_author
 
-        volume['exts'] = [{"volumeid": book['id'],
+        volume['exts'] = [{"volumeid": book.id,
                            "type": "pdb",
                            "link": urljoin(base_url,
                                            save_item.attrib['href'])}]
@@ -190,7 +212,7 @@ def analysis_book_html_and_save(book, html):
                     'id': _id,
                     'author': save_item.getprevious().text,
                     'title': save_item.getprevious().tail,
-                    'bookid': book['id'],
+                    'bookid': book.id,
                 }
                 exts = []
             elif "DownloadEpub" in onclick:
@@ -256,7 +278,7 @@ def get_suburl(url, page):
 
 def grab_and_analysis(book):
     # grab html
-    html = scrape(book['url'])
+    html = scrape(book.url)
 
     # analysis and store information into book
     return analysis_book_html_and_save(book, html)
@@ -292,25 +314,14 @@ def main():
         print(">>> Stage 2 - Analysising all book urls {}<<<".format(
             datetime.now()))
         p = Pool()
-        results = p.map(grab_and_analysis,
-                        scraperwiki.sqlite.select("* from bookpages"))
-        #results = map(grab_and_analysis,
-        #              scraperwiki.sqlite.select("* from bookpages"))
+        results = p.map(grab_and_analysis, Page.query_all())
+        # results = map(grab_and_analysis, Page.query_all())
 
         print(">>> Stage 3 - Saving results {}<<<".format(
             datetime.now()))
         for volumes in results:
             for volume in volumes:
-                for ext in volume['exts']:
-                    scraperwiki.sqlite.save(
-                        unique_keys=["volumeid", "type"],
-                        data=ext,
-                        table_name="volumeexts")
-                del volume['exts']
-                scraperwiki.sqlite.save(
-                    unique_keys=["id"],
-                    data=volume,
-                    table_name="bookvolumes")
+                save_volume(volume)
 
         print(">>> State 4 - done {}<<<".format(datetime.now()))
 
