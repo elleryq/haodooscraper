@@ -1,14 +1,14 @@
 # For scrape Haodoo (http://www.haodoo.net)
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals
+
 from multiprocessing import Pool
 from datetime import datetime
 import re
 import requests
 import lxml.html
 from model import Page, Volume, session
-from urlparse import parse_qs, urljoin, urlparse, urlunparse
-from urllib import urlencode
+from urllib.parse import parse_qs, urljoin, urlparse, urlunparse
+from urllib.parse import urlencode
 import traceback
 
 # DownloadPdb('A435')
@@ -269,7 +269,7 @@ def get_suburl(url, page):
     """
     pr = list(urlparse(url))
     param = parse_qs(pr[4])
-    for k, v in param.items():
+    for k, v in list(param.items()):
         param[k] = v[0]
     param["P"] = "{0}-{1}".format(param["P"], page)
     pr[4] = urlencode(param)
@@ -325,7 +325,7 @@ def main():
 
         print(">>> State 4 - done {}<<<".format(datetime.now()))
 
-    except Exception, e:
+    except Exception as e:
         print("Got exception:")
         print(e)
         print(traceback.format_exc())
