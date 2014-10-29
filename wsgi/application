@@ -13,7 +13,7 @@ def home():
 
 
 #
-# Main
+# Main, for testing
 #
 if __name__ == '__main__':
     ip = os.environ['OPENSHIFT_PYTHON_IP']
