@@ -3,7 +3,8 @@ import os
 from flask import Flask
 
 
-app = application = Flask(__name__)
+instancepath = os.path.join(os.environ['OPENSHIFT_PYTHON_DIR'], 'instance')
+app = application = Flask(__name__, instance_path=instancepath)
 
 
 # The '/' page is accessible to anyone
