@@ -10,4 +10,3 @@ nose==1.2.1
 pyOpenSSL==0.14
 requests==2.4.3
 six==1.8.0
-wsgiref==0.1.2
