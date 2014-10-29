@@ -2,16 +2,16 @@
 import os
 
 
-def execfile(afile, globalz=None, localz=None):
-    with open(afile, "r") as fh:
-        exec(fh.read(), globalz, localz)
-
-virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
-virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
-try:
-    execfile(virtualenv, dict(__file__=virtualenv))
-except IOError:
-    pass
+#def execfile(afile, globalz=None, localz=None):
+#    with open(afile, "r") as fh:
+#        exec(fh.read(), globalz, localz)
+#
+#virtenv = os.environ['OPENSHIFT_PYTHON_DIR'] + '/virtenv/'
+#virtualenv = os.path.join(virtenv, 'bin/activate_this.py')
+#try:
+#    execfile(virtualenv, dict(__file__=virtualenv))
+#except IOError:
+#    pass
 
 
 from flask import Flask
