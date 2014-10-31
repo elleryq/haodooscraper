@@ -5,10 +5,13 @@ setup(name='HaodooScraper-Flask',
       description='HaodooScraper - Scraper and Web App',
       author='elleryq',
       author_email='elleryq@gmail.com',
-      url='http://www.python.org/sigs/distutils-sig/',
+      url='https://github.com/elleryq/haodooscraper',
       install_requires=['Flask',
                         'requests',
                         'SQLAlchemy',
                         'lxml',
                         'six'],
+      classifiers=[
+          "Development Status :: 3 - Alpha",
+      ]
       )
