@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='HaodooScraper-Flask',
       version='1.0',
@@ -13,5 +13,8 @@ setup(name='HaodooScraper-Flask',
                         'six'],
       classifiers=[
           "Development Status :: 3 - Alpha",
-      ]
+          "Programming Language :: Python :: 3",
+      ],
+      scripts=['scraper.py'],
+      packages=find_packages(),
       )
