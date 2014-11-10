@@ -6,7 +6,7 @@ from datetime import datetime
 import re
 import requests
 import lxml.html
-from haodooscraper.model import Page, Volume, session
+from model import Page, Volume, session
 from urllib.parse import parse_qs, urljoin, urlparse, urlunparse
 from urllib.parse import urlencode
 import traceback

@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from haodooscraper.scraper import scrape_haodoo
 
-
-def main():
-    pass
 
 if __name__ == "__main__":
-    main()
+    scrape_haodoo()

@@ -15,6 +15,6 @@ setup(name='HaodooScraper-Flask',
           "Development Status :: 3 - Alpha",
           "Programming Language :: Python :: 3",
       ],
-      scripts=['scraper.py'],
+      #scripts=['scraper.py'],
       packages=find_packages(),
       )
