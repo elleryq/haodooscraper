@@ -284,7 +284,7 @@ def grab_and_analysis(book):
     return analysis_book_html_and_save(book, html)
 
 
-def main():
+def scrape_haodoo():
     """
     Main
     """
@@ -331,4 +331,4 @@ def main():
         print(traceback.format_exc())
 
 if __name__ == "__main__":
-    main()
+    scrape_haodoo()
