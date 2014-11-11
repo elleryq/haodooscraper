@@ -20,8 +20,8 @@ def find_packages(path, base=""):
                 module_name = "%(base)s.%(item)s" % vars()
             else:
                 module_name = item
-            packages[module_name] = dir
-            packages.update(find_packages(dir, module_name))
+            packages[module_name] = dir_
+            packages.update(find_packages(dir_, module_name))
     return packages
 
 
