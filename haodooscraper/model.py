@@ -13,7 +13,7 @@ if not db_url:
     raise Exception("Need to set 'OPENSHIFT_MYSQL_DB_URL'.")
 
 db_url = db_url.replace("mysql://", "mysql+pymysql://")
-db_url = db_url + "?charset=utf8"
+db_url = db_url + "haodooscraper?charset=utf8"
 engine = create_engine(db_url)
 Base = declarative_base()
 Session = sessionmaker()
