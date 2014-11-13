@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from flask import Flask, Response, url_for
+from flask import Flask, Response, url_for, render_template
 from haodooscraper.model import Volume
 
 
@@ -13,4 +13,4 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 @app.route('/')
 def home():
     volumes = Volume.query_all()
-    return "Hello world! {0}".format(len(volumes))
+    return render_template("index.html", {'count': len(volumes)})
