@@ -13,4 +13,4 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 @app.route('/')
 def home():
     volumes = Volume.query_all()
-    return render_template("index.html", {'count': len(volumes)})
+    return render_template("index.html", count=len(volumes))
