@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import os
-from sqlalchemy import create_engine
-from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
+from sqlalchemy import (create_engine,
+                        Table, Column, Integer, String, MetaData, ForeignKey,
+                        or_)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+from flask.ext.jsontools import JsonSerializableBase
 
 
 db_url = os.environ.get("OPENSHIFT_MYSQL_DB_URL", "")
@@ -15,7 +17,7 @@ if not db_url:
 db_url = db_url.replace("mysql://", "mysql+pymysql://")
 db_url = db_url + "haodooscraper?charset=utf8"
 engine = create_engine(db_url)
-Base = declarative_base()
+Base = declarative_base(cls=(JsonSerializableBase,))
 Session = sessionmaker()
 session = Session(bind=engine)
 
@@ -78,6 +80,13 @@ class Volume(Base):
     @classmethod
     def query_all(cls):
         return session.query(cls).all()
+
+    @classmethod
+    def query_by_title_or_author(cls, q):
+        results = session.query(cls).filter(
+            or_(cls.title.like('%{}%'.format(q)),
+                cls.author.like('%{}%'.format(q)))).order_by(cls.title).all()
+        return results
 
 
 class VolumeExt(Base):

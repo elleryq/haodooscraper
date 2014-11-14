@@ -1,11 +1,28 @@
 <div>
-    <p>
-        {{ count }} books are indexed.
-    </p>
-</div>
-<div>
-    <form action="">
-        <input type="TEXT" name="q" value=""/>
+    <form action="/" method="GET">
+        <input type="TEXT" name="q" value="{{ q }}"/>
         <input type="SUBMIT" name="submit" value="Submit"/>
     </form>
+</div>
+<div>
+    {{ volumes|length }}
+    <table border="1">
+        {% for volume in volumes %}
+        <tr>
+            <td>
+                {{ volume.title }}
+            </td>
+            <td>
+                {{ volume.author }}
+            </td>
+            <td>
+                <ul>
+                    {%- for ext in volume.exts %}
+                    <li><a href="{{ ext.link }}">{{ ext.volumetype }}</a></li>
+                    {% endfor -%}
+                </ul>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
