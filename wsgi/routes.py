@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
-from flask import Flask, Response, url_for, render_template
+from flask import Flask, Response, url_for, render_template, jsonify
+import json
 from haodooscraper.model import Volume
 
 
@@ -14,3 +15,8 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 def home():
     volumes = Volume.query_all()
     return render_template("index.html", count=len(volumes))
+
+
+@app.route('/query')
+def query():
+    return jsonify(results=[])
