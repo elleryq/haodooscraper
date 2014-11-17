@@ -1,28 +1,53 @@
-<div>
-    <form action="/" method="GET">
-        <input type="TEXT" name="q" value="{{ q }}"/>
-        <input type="SUBMIT" name="submit" value="Submit"/>
-    </form>
+{% extends "bootstrap/base.html" %}
+
+{% import "helper.html" as helper %}
+
+{% block title %}好讀快搜{% endblock %}
+
+{% block metas %}
+{{super()}}
+<meta charset="utf-8">
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="input-group">
+            <form action="/" method="GET">
+                <input type="TEXT" name="q" value="{{ q }}" class="form-control"/>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search">
+                        </span>
+                    </button>
+                </span>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        {{ helper.render_pagination(pagination) }}
+        <div class="panel panel-default table-responsive">
+            <table class="table table-striped table-bordered">
+                {% for volume in pagination.items() %}
+                <tr>
+                    <td>
+                        {{ volume.title }}
+                    </td>
+                    <td>
+                        <a href='{{url_for("home", q=volume.author)}}'>{{ volume.author }}</a>
+                    </td>
+                    <td>
+                        <ul>
+                            {%- for ext in volume.exts %}
+                            <li><a href="{{ ext.link }}">{{ ext.volumetype }}</a></li>
+                            {% endfor -%}
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {{ helper.render_pagination(pagination) }}
+    </div>
 </div>
-<div>
-    {{ volumes|length }}
-    <table border="1">
-        {% for volume in volumes %}
-        <tr>
-            <td>
-                {{ volume.title }}
-            </td>
-            <td>
-                {{ volume.author }}
-            </td>
-            <td>
-                <ul>
-                    {%- for ext in volume.exts %}
-                    <li><a href="{{ ext.link }}">{{ ext.volumetype }}</a></li>
-                    {% endfor -%}
-                </ul>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+{% endblock %}

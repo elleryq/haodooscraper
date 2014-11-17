@@ -3,6 +3,8 @@ from setuptools import setup, find_packages
 
 required_packages = ['Flask',
                      'Flask-JsonTools',
+                     'Flask-Bootstrap',
+                     'Flask-WTF',
                      'requests',
                      'SQLAlchemy',
                      'lxml',

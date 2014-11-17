@@ -6,6 +6,7 @@ from sqlalchemy import (create_engine,
                         or_)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import func
 from flask.ext.jsontools import JsonSerializableBase
 
 
@@ -87,6 +88,21 @@ class Volume(Base):
             or_(cls.title.like('%{}%'.format(q)),
                 cls.author.like('%{}%'.format(q)))).order_by(cls.title).all()
         return results
+
+    @classmethod
+    def query(cls, q=None):
+        if q:
+            qry = session.query(cls).filter(
+                or_(cls.title.like('%{}%'.format(q)),
+                    cls.author.like('%{}%'.format(q)))).order_by(cls.title)
+        else:
+            qry = session.query(cls)
+
+        return qry.all()
+
+    @classmethod
+    def count(cls):
+        return session.query(func.count(cls.id)).scalar()
 
 
 class VolumeExt(Base):
