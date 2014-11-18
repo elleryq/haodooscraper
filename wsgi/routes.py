@@ -23,15 +23,20 @@ Bootstrap(app)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
 
-# The '/' page is accessible to anyone
-@app.route('/')
-def home():
-    q = request.args.get('q', '')
+def get_page():
     page_str = request.args.get('page', '1')
     try:
         page = int(page_str)
     except ValueError:
-        page = 0
+        page = 1
+    return page
+
+
+# The '/' page is accessible to anyone
+@app.route('/')
+def home():
+    q = request.args.get('q', '')
+    page = get_page()
     volumes = Volume.query(q)
     return render_template("index.html",
                            volumes=volumes,
@@ -39,13 +44,11 @@ def home():
                            pagination=Pagination(page, PAGE_SIZE, volumes))
 
 
-@app.route('/query')
+@app.route('/json')
 @jsonapi
 def query():
     q = request.args.get('q', None)
-    if q:
-        volumes = Volume.query_by_title_or_author(q)
-    else:
-        volumes = Volume.query_all()
-    return {'results': volumes}
-    #return {'results': "Hello world"}
+    page = get_page()
+    volumes = Volume.query(q)
+    pagination = Pagination(page, PAGE_SIZE, volumes)
+    return {'results': list(pagination.items())}

@@ -104,6 +104,17 @@ class Volume(Base):
     def count(cls):
         return session.query(func.count(cls.id)).scalar()
 
+    def __json__(self, exluded_keys=set()):
+        obj = super(Volume, self).__json__()
+        if '_id' in obj:
+            del obj['_id']
+        exts = [ext.__json__() for ext in self.exts]
+        for ext in exts:
+            if '_id' in ext:
+                del ext['_id']
+        obj['exts'] = exts
+        return obj
+
 
 class VolumeExt(Base):
     __tablename__ = 'volumeexts'
