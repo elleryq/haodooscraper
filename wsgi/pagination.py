@@ -2,6 +2,12 @@ from math import ceil
 
 
 class Pagination(object):
+    """
+    Pagination
+    @param page specified page.
+    @param per_page How many items to display in page.
+    @param items data.
+    """
     def __init__(self, page, per_page, items):
         if page < 1:
             self.page = 1
@@ -13,18 +19,30 @@ class Pagination(object):
 
     @property
     def pages(self):
+        """
+        Count pages.
+        """
         return int(ceil(self.total_count / float(self.per_page)))
 
     @property
     def has_prev(self):
+        """
+        Has previous page?
+        """
         return self.page > 1
 
     @property
     def has_next(self):
+        """
+        Has next page?
+        """
         return self.page < self.pages
 
     def iter_pages(self, left_edge=2, left_current=2,
                    right_current=5, right_edge=2):
+        """
+        Iterate pages.
+        """
         last = 0
         for num in range(1, self.pages + 1):
             if num <= left_edge or \
@@ -37,6 +55,9 @@ class Pagination(object):
                 last = num
 
     def items(self):
+        """
+        Return the items in specified page.
+        """
         start = (self.page-1) * self.per_page
         for item in self._items[start:start+self.per_page]:
             yield item
