@@ -14,7 +14,7 @@ def url_for_other_page(page):
     return url_for(request.endpoint, **args)
 
 
-PAGE_SIZE = 20
+PAGE_SIZE = 10
 instancepath = os.path.join(os.environ['OPENSHIFT_PYTHON_DIR'], 'instance')
 app = Flask(__name__, instance_path=instancepath)
 app.json_encoder = DynamicJSONEncoder
