@@ -7,6 +7,7 @@
 {% block metas %}
 {{super()}}
 <meta charset="utf-8">
+<meta name="google-site-verification" content="uByFwnRBYCok37e41hwiQZI8WQqVz3e3exAx0y1_7Pc" />
 {% endblock %}
 
 {% block styles %}
@@ -67,4 +68,18 @@ body { padding-top: 70px; }
         {{ helper.render_pagination(pagination) }}
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-97150-23', 'auto');
+  ga('send', 'pageview');
+
+</script>
 {% endblock %}
