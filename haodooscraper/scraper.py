@@ -42,10 +42,16 @@ def save_volume(volume_dict):
     exts is a list contain dicts.  The element contain these keys:
     volumeid, type, link.
     """
-    if Volume.is_existed(volume_dict['id']):
-        return
+    volume = Volume.query_by_id(volume_dict['id'])
+    if not volume:
+        volume = Volume.create(volume_dict)
+    else:
+        volume.id = volume_dict['id']
+        volume.author = volume_dict['author']
+        volume.title = volume_dict['title']
+        volume.bookid = volume_dict['bookid']
+        volume.pageurl = volume_dict['pageurl']
 
-    volume = Volume.create(volume_dict)
     session.add(volume)
     session.commit()
 
@@ -182,6 +188,7 @@ def analysis_book_html_and_save(book, html):
         volume = {
             'id': book.id,
             'bookid': book.id,
+            "pageurl": book.url,
         }
         if title:
             volume['title'] = title
@@ -209,6 +216,7 @@ def analysis_book_html_and_save(book, html):
                     volume['exts'] = exts
                     volumes.append(volume)
                 volume = {
+                    "pageurl": book.url,
                     'id': _id,
                     'author': save_item.getprevious().text,
                     'title': save_item.getprevious().tail,

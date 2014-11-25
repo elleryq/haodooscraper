@@ -49,7 +49,7 @@ body { padding-top: 70px; }
                 {% for volume in pagination.items() %}
                 <tr>
                     <td>
-                        {{ volume.title }}
+                        <a href='{{ volume.pageurl }}' target="_blank">{{ volume.title }}</a>
                     </td>
                     <td>
                         <a href='{{url_for("home", q=volume.author)}}'>{{ volume.author }}</a>

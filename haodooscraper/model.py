@@ -55,6 +55,7 @@ class Volume(Base):
     author = Column(String(64))
     title = Column(String(256))
     bookid = Column(String(16))
+    pageurl = Column(String(256))
     exts = relationship("VolumeExt", backref="volume")
 
     @classmethod
@@ -64,6 +65,7 @@ class Volume(Base):
         vol.author = volume['author']
         vol.title = volume['title']
         vol.bookid = volume['bookid']
+        vol.pageurl = volume['pageurl']
 
         for ext in volume['exts']:
             extend = VolumeExt()
@@ -99,6 +101,11 @@ class Volume(Base):
             qry = session.query(cls)
 
         return qry.all()
+
+    @classmethod
+    def query_by_id(cls, _id):
+        qry = session.query(cls).filter(cls.id == _id).first()
+        return qry
 
     @classmethod
     def count(cls):
