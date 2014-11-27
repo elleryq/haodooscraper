@@ -19,6 +19,10 @@ instancepath = os.path.join(os.environ['OPENSHIFT_PYTHON_DIR'], 'instance')
 app = Flask(__name__, instance_path=instancepath)
 app.json_encoder = DynamicJSONEncoder
 app.config['PROPAGATE_EXCEPTIONS'] = True
+if "DEBUG" in os.environ:
+    app.debug = os.environ['DEBUG'].lower() == "true"
+else:
+    app.debug = False
 Bootstrap(app)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
