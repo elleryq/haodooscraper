@@ -62,6 +62,12 @@ body { padding-top: 70px; }
                         </p>
                     </td>
                 </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3">
+                        Not found.
+                    </td>
+                </tr>
                 {% endfor -%}
             </table>
         </div>
