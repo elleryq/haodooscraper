@@ -56,3 +56,8 @@ def query():
     volumes = Volume.query(q)
     pagination = Pagination(page, PAGE_SIZE, volumes)
     return {'results': list(pagination.items())}
+
+
+@app.route('/api')
+def api():
+    return render_template("api.html")
