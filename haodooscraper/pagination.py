@@ -8,14 +8,16 @@ class Pagination(object):
     @param per_page How many items to display in page.
     @param items data.
     """
-    def __init__(self, page, per_page, items):
+    def __init__(self, page, per_page, total_count, items):
         if page < 1:
             self.page = 1
         else:
             self.page = page
         self.per_page = per_page
-        self.total_count = len(items)
+        self.total_count = total_count
         self._items = items
+        if self.page > self.pages:
+            self.page = self.pages
 
     @property
     def pages(self):
@@ -58,6 +60,5 @@ class Pagination(object):
         """
         Return the items in specified page.
         """
-        start = (self.page-1) * self.per_page
-        for item in self._items[start:start+self.per_page]:
+        for item in self._items:
             yield item

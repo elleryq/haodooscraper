@@ -4,12 +4,13 @@ from flask import (Flask, Response, url_for, render_template,
                    request)
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.jsontools import jsonapi, DynamicJSONEncoder
+from werkzeug.datastructures import MultiDict
 from haodooscraper.model import Volume
-from pagination import Pagination
 
 
 def url_for_other_page(page):
-    args = request.view_args.copy()
+    args = MultiDict(list(
+        request.args.items()) + list(request.view_args.items()))
     args['page'] = page
     return url_for(request.endpoint, **args)
 
@@ -41,11 +42,10 @@ def get_page():
 def home():
     q = request.args.get('q', '')
     page = get_page()
-    volumes = Volume.query(q)
-    return render_template("index.html",
-                           volumes=volumes,
-                           q=q,
-                           pagination=Pagination(page, PAGE_SIZE, volumes))
+    return render_template(
+        "index.html",
+        q=q,
+        pagination=Volume.query_as_pagination(q, page, PAGE_SIZE))
 
 
 @app.route('/json')
@@ -53,9 +53,7 @@ def home():
 def query():
     q = request.args.get('q', None)
     page = get_page()
-    volumes = Volume.query(q)
-    pagination = Pagination(page, PAGE_SIZE, volumes)
-    return {'results': list(pagination.items())}
+    return {'results': list(Volume.query_as_pagination(q, page, PAGE_SIZE))}
 
 
 @app.route('/api')
