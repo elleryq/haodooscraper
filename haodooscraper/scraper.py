@@ -21,7 +21,7 @@ base_url = 'http://www.haodoo.net/'
 
 def scrape(url):
     r = requests.get(url)
-    r.encoding = "big5"
+    # r.encoding = "big5"
     return r.text
 
 
