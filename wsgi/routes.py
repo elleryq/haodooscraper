@@ -53,7 +53,8 @@ def home():
 def query():
     q = request.args.get('q', None)
     page = get_page()
-    return {'results': Volume.query_as_pagination(q, page, PAGE_SIZE).items()}
+    return {'results': list(Volume.query_as_pagination(
+        q, page, PAGE_SIZE).items())}
 
 
 @app.route('/api')
@@ -67,4 +68,4 @@ def test_encoding():
     page = 1
     q = None
     results = Volume.query_as_pagination(q, page, PAGE_SIZE).items()
-    return {'results': results}
+    return {'results': list(results)}
