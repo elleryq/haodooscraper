@@ -2,8 +2,8 @@
 import os
 from flask import (Flask, Response, url_for, render_template,
                    request)
-from flask.ext.bootstrap import Bootstrap
-from flask.ext.jsontools import jsonapi, DynamicJSONEncoder
+from flask_bootstrap import Bootstrap
+from flask_jsontools import jsonapi, DynamicJSONEncoder
 from werkzeug.datastructures import MultiDict
 from haodooscraper.model import Volume
 

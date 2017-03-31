@@ -7,7 +7,7 @@ from sqlalchemy import (create_engine,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy import func
-from flask.ext.jsontools import JsonSerializableBase
+from flask_jsontools import JsonSerializableBase
 from haodooscraper.pagination import Pagination
 
 
@@ -18,6 +18,7 @@ if not db_url:
 
 db_url = db_url.replace("mysql://", "mysql+pymysql://")
 db_url = db_url + "haodooscraper?charset=utf8"
+print("db_url={}".format(db_url))
 engine = create_engine(db_url)
 Base = declarative_base(cls=(JsonSerializableBase,))
 Session = sessionmaker()
