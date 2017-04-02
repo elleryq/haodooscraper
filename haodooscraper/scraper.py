@@ -20,9 +20,13 @@ base_url = 'http://www.haodoo.net/'
 
 
 def scrape(url):
-    r = requests.get(url)
-    # r.encoding = "big5"
-    return r.text
+    try:
+        r = requests.get(url, timeout=60)
+        # r.encoding = "big5"
+        return r.text
+    except Exception as e:
+        print('Got error when requesting {}'.format(url))
+        time.sleep(5)
 
 
 def save_bookpages(book_dict):

@@ -18,7 +18,7 @@ if not db_url:
 
 db_url = db_url.replace("mysql://", "mysql+pymysql://")
 db_url = db_url + "haodooscraper?charset=utf8"
-print("db_url={}".format(db_url))
+# print("db_url={}".format(db_url))
 engine = create_engine(db_url)
 Base = declarative_base(cls=(JsonSerializableBase,))
 Session = sessionmaker()

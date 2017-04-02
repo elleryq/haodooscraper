@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
 from flask import (Flask, Response, url_for, render_template,
-                   request)
+                   request, jsonify)
 from flask_bootstrap import Bootstrap
 from flask_jsontools import jsonapi, DynamicJSONEncoder
+from flask_apiblueprint import APIBlueprint
 from werkzeug.datastructures import MultiDict
 from haodooscraper.model import Volume
 
@@ -26,6 +27,8 @@ else:
     app.debug = False
 Bootstrap(app)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+
+api_v1 = APIBlueprint('api_v1', __name__, url_prefix='/api/v1')
 
 
 def get_page():
@@ -69,3 +72,15 @@ def test_encoding():
     q = None
     results = Volume.query_as_pagination(q, page, PAGE_SIZE).items()
     return {'results': list(results)}
+
+
+@api_v1.route('/book/<name>/')
+def api_book(name):
+    result = {
+        'name': name
+    }
+    return jsonify(result)
+
+
+print(api_v1.routes_to_views_map)
+app.register_blueprint(api_v1)
