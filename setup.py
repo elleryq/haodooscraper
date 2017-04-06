@@ -10,7 +10,7 @@ required_packages = ['Flask',
                      'requests',
                      'SQLAlchemy',
                      'lxml',
-                     'six']
+                     'six==1.3.0']
 
 if 'REDISCLOUD_URL' in os.environ \
         and 'REDISCLOUD_PORT' in os.environ \
