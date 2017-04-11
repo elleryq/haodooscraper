@@ -47,7 +47,11 @@ class Page(Base):
 
     @classmethod
     def query_all(cls):
-        return session.query(cls).all()
+        return cls._query().all()
+
+    @classmethod
+    def _query(cls):
+        return session.query(cls)
 
 
 class Volume(Base):
@@ -58,7 +62,7 @@ class Volume(Base):
     title = Column(String(256))
     bookid = Column(String(16))
     pageurl = Column(String(256))
-    exts = relationship("VolumeExt", backref="volume")
+    exts = relationship("VolumeExt", cascade="all,delete", backref="Volume")
 
     @classmethod
     def create(cls, volume):
@@ -143,5 +147,15 @@ class VolumeExt(Base):
     volumetype = Column(String(8))
     link = Column(String(256))
 
+    @classmethod
+    def _query(cls, q=None):
+        if q:
+            qry = session.query(cls).filter(
+                or_(cls.title.like('%{}%'.format(q)),
+                    cls.author.like('%{}%'.format(q)))).order_by(cls.title)
+        else:
+            qry = session.query(cls)
+
+        return qry
 
 Base.metadata.create_all(bind=engine)

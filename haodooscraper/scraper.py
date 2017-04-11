@@ -4,9 +4,10 @@
 from multiprocessing import Pool
 from datetime import datetime
 import re
+import ast
 import requests
 import lxml.html
-from haodooscraper.model import Page, Volume, session
+from haodooscraper.model import Page, Volume, VolumeExt, session
 from urllib.parse import parse_qs, urljoin, urlparse, urlunparse
 from urllib.parse import urlencode
 import traceback
@@ -122,6 +123,22 @@ def find_volume_id_2(onclick):
     return ""
 
 
+def find_volume_id_3(onclick):
+    """Find book id from the given string.
+
+    Using ast to parse script
+    """
+    result = ""
+    try:
+        ast_tree = ast.parse(onclick)
+        if ast_tree:
+            result = ast_tree.body[0].value.args[0].s
+    except Exception as ex:
+        print("find_volume_id_3 cannot parse!")
+        print(ex)
+    return result
+
+
 def convert_to_dl_url(_id, ext):
     """
     According book_id and book type to generate download url.
@@ -214,7 +231,7 @@ def analysis_book_html_and_save(book, html):
         exts = []
         for save_item in doc.xpath('//input[contains(@type, "button")]'):
             onclick = save_item.get('onclick')
-            _id = find_volume_id_2(onclick)
+            _id = find_volume_id_3(onclick)
             if "ReadOnline" in onclick or "ReadPdbOnline" in onclick:
                 if volume is not None:
                     volume['exts'] = exts
@@ -236,6 +253,9 @@ def analysis_book_html_and_save(book, html):
             elif "DownloadPdb" in onclick:
                 dl_link = convert_to_dl_url(_id, "pdb")
                 exts.append({"volumeid": _id, "type": "pdb", "link": dl_link})
+            elif "DownloadMobi" in onclick:
+                dl_link = convert_to_dl_url(_id, "mobi")
+                exts.append({"volumeid": _id, "type": "mobi", "link": dl_link})
         if volume:
             volume['exts'] = exts
             volumes.append(volume)
@@ -343,4 +363,10 @@ def scrape_haodoo():
         print(traceback.format_exc())
 
 if __name__ == "__main__":
+    # Clear first.
+    Page._query().delete()
+    VolumeExt._query().delete()
+    Volume._query().delete()
+    session.commit()
+
     scrape_haodoo()
