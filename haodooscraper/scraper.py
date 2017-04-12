@@ -364,6 +364,7 @@ def scrape_haodoo():
 
 if __name__ == "__main__":
     # Clear first.
+    print("Clear first.")
     Page._query().delete()
     VolumeExt._query().delete()
     Volume._query().delete()
