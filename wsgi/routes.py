@@ -23,7 +23,7 @@ query_arguments = reqparse.RequestParser()
 query_arguments.add_argument('page', type=int, required=False, default=1)
 query_arguments.add_argument('per_page', type=int, required=False,
                                   choices=[5, 10, 20, 30, 40, 50], default=10)
-query_arguments.add_argument('q', type=str, required=True, default='')
+query_arguments.add_argument('q', type=str, required=False, default='')
 
 instance_path = os.path.join(os.environ['OPENSHIFT_PYTHON_DIR'], 'instance')
 app = Flask(__name__, instance_path=instance_path)
