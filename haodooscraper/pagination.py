@@ -56,6 +56,14 @@ class Pagination(object):
                 yield num
                 last = num
 
+    def iter_each_pages(self):
+        last = 0
+        for num in range(1, self.pages + 1):
+            if last + 1 != num:
+                yield None
+            yield num
+            last = num
+
     def items(self):
         """
         Return the items in specified page.
