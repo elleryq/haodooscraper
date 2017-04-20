@@ -2,10 +2,10 @@
 <nav aria-label="Page navigation">
   <ul class="pager">
   {% if pagination.has_prev %}
-    <li><a href="{{ url_for_other_page(pagination.page - 1) }}">Previous</a></li>
+    <li><a href="{{ url_for_other_page(pagination.page - 1) }}">上一頁</a></li>
   {% endif %}
   {% if pagination.has_next %}
-    <li><a href="{{ url_for_other_page(pagination.page + 1) }}">Next</a></li>
+    <li><a href="{{ url_for_other_page(pagination.page + 1) }}">下一頁</a></li>
   {% endif %}
   </ul>
 </nav>
