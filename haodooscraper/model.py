@@ -13,11 +13,12 @@ from haodooscraper.pagination import Pagination
 
 db_url = os.environ.get("OPENSHIFT_MYSQL_DB_URL", "")
 
-if not db_url:
-    raise Exception("Need to set 'OPENSHIFT_MYSQL_DB_URL'.")
+if db_url:
+    db_url = db_url.replace("mysql://", "mysql+pymysql://")
+    db_url = db_url + "haodooscraper?charset=utf8"
+else:
+    db_url = "sqlite:///db.sqlite3"
 
-db_url = db_url.replace("mysql://", "mysql+pymysql://")
-db_url = db_url + "haodooscraper?charset=utf8"
 # print("db_url={}".format(db_url))
 engine = create_engine(db_url)
 Base = declarative_base(cls=(JsonSerializableBase,))

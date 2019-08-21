@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from distutils.util import strtobool
 from flask import (Flask, Response, url_for, render_template,
                    request, jsonify, Blueprint)
 from flask_bootstrap import Bootstrap
@@ -25,7 +26,11 @@ query_arguments.add_argument('per_page', type=int, required=False,
                                   choices=[5, 10, 20, 30, 40, 50], default=10)
 query_arguments.add_argument('q', type=str, required=False, default='')
 
-instance_path = os.path.join(os.environ['OPENSHIFT_PYTHON_DIR'], 'instance')
+instance_path = os.path.join(
+    os.environ.get(
+        'OPENSHIFT_PYTHON_DIR',
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ), 'instance')
 app = Flask(__name__, instance_path=instance_path)
 app.json_encoder = DynamicJSONEncoder
 app.config['PROPAGATE_EXCEPTIONS'] = True
@@ -33,10 +38,7 @@ app.config['RESTPLUS_JSON'] = {
     'cls': DynamicJSONEncoder,
 }
 
-if "DEBUG" in os.environ:
-    app.debug = os.environ['DEBUG'].lower() == "true"
-else:
-    app.debug = False
+app.debug = strtobool(os.environ.get('DEBUG', 'false'))
 Bootstrap(app)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
