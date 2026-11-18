@@ -2,7 +2,6 @@
 import os
 from flask import Flask, url_for, render_template, request, Blueprint
 from flask.json.provider import DefaultJSONProvider
-from flask_bootstrap import Bootstrap
 from flask_restx import Resource, reqparse
 from werkzeug.datastructures import MultiDict
 from haodooscraper.model import Volume
@@ -49,7 +48,6 @@ app.config['RESTX_JSON'] = {
 
 app.debug = os.environ.get('DEBUG', 'false').lower() in (
     'y', 'yes', 't', 'true', 'on', '1')
-Bootstrap(app)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
 blueprint = Blueprint('api', __name__, url_prefix='/api')

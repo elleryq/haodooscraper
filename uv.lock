@@ -336,15 +336,6 @@ wheels = [
 ]
 
 [[package]]
-name = "dominate"
-version = "3.1.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/4b/d4/35f08b4f459a44fff3295a70a46d6f8847b77945f059b0fac8d082efd9a9/dominate-3.1.0.tar.gz", hash = "sha256:926989c819db2fe91e590590a2902183685edd94829c8cfba5fd71af57c1a982", size = 38510, upload-time = "2026-10-30T18:37:48.222Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5f/fe/136c90734c1fff9af60d9e72b2bb5498f125abbef0b328f4d2c982361933/dominate-3.1.0-py3-none-any.whl", hash = "sha256:a395d37ca3f0e37e96a86a108c6b8951459a019109aa8abae1eab887a18b6f70", size = 27446, upload-time = "2026-10-30T18:37:46.932Z" },
-]
-
-[[package]]
 name = "flask"
 version = "3.1.3"
 source = { registry = "https://pypi.org/simple" }
@@ -360,17 +351,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/26/00/35d85dcce6c57fdc8
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7f/9c/34f6962f9b9e9c71f6e5ed806e0d0ff03c9d1b0b2340088a0cf4bce09b18/flask-3.1.3-py3-none-any.whl", hash = "sha256:f4bcbefc124291925f1a26446da31a5178f9483862233b23c0c96a20701f670c", size = 103424, upload-time = "2026-02-19T05:00:56.027Z" },
 ]
-
-[[package]]
-name = "flask-bootstrap"
-version = "3.3.7.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "dominate" },
-    { name = "flask" },
-    { name = "visitor" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/88/53/958ce7c2aa26280b7fd7f3eecbf13053f1302ee2acb1db58ef32e1c23c2a/Flask-Bootstrap-3.3.7.1.tar.gz", hash = "sha256:cb08ed940183f6343a64e465e83b3a3f13c53e1baabb8d72b5da4545ef123ac8", size = 456359, upload-time = "2017-01-11T23:28:23.944Z" }
 
 [[package]]
 name = "flask-restx"
@@ -397,7 +377,6 @@ dependencies = [
     { name = "cryptography" },
     { name = "cssselect" },
     { name = "flask" },
-    { name = "flask-bootstrap" },
     { name = "flask-restx" },
     { name = "lxml" },
     { name = "pymysql" },
@@ -410,7 +389,6 @@ requires-dist = [
     { name = "cryptography", specifier = ">=46.0" },
     { name = "cssselect", specifier = ">=1.3" },
     { name = "flask", specifier = ">=3.1" },
-    { name = "flask-bootstrap", specifier = ">=3.3.7.1" },
     { name = "flask-restx", specifier = ">=1.3" },
     { name = "lxml", specifier = ">=6.0" },
     { name = "pymysql", specifier = ">=1.1" },
@@ -951,12 +929,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/e3/05/b17359e1cefb4f909
 wheels = [
     { url = "https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl", hash = "sha256:0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3", size = 135717, upload-time = "2026-09-15T19:29:34.577Z" },
 ]
-
-[[package]]
-name = "visitor"
-version = "0.1.3"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d7/58/785fcd6de4210049da5fafe62301b197f044f3835393594be368547142b0/visitor-0.1.3.tar.gz", hash = "sha256:2c737903b2b6864ebc6167eef7cf3b997126f1aa94bdf590f90f1436d23e480a", size = 3260, upload-time = "2016-05-18T19:27:53.383Z" }
 
 [[package]]
 name = "werkzeug"
