@@ -143,7 +143,7 @@ def find_volume_id_3(onclick):
     try:
         ast_tree = ast.parse(onclick)
         if ast_tree:
-            result = ast_tree.body[0].value.args[0].s
+            result = ast_tree.body[0].value.args[0].value
     except Exception as ex:
         print("find_volume_id_3 cannot parse!")
         print(ex)

@@ -1,14 +1,23 @@
 # -*- coding: utf-8 -*-
 import os
-from distutils.util import strtobool
-from flask import (Flask, Response, url_for, render_template,
-                   request, jsonify, Blueprint)
+from flask import Flask, url_for, render_template, request, Blueprint
+from flask.json.provider import DefaultJSONProvider
 from flask_bootstrap import Bootstrap
-from flask_jsontools import jsonapi, DynamicJSONEncoder
-from flask_restplus import Resource, Api, reqparse
+from flask_restx import Resource, reqparse
 from werkzeug.datastructures import MultiDict
 from haodooscraper.model import Volume
-from restplus import api
+from restx import api
+
+
+def json_default(o):
+    """Serialize objects that define __json__(), such as the models."""
+    if hasattr(o, '__json__'):
+        return o.__json__()
+    return DefaultJSONProvider.default(o)
+
+
+class ModelJSONProvider(DefaultJSONProvider):
+    default = staticmethod(json_default)
 
 
 def url_for_other_page(page):
@@ -32,13 +41,14 @@ instance_path = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         ), 'instance')
 app = Flask(__name__, instance_path=instance_path)
-app.json_encoder = DynamicJSONEncoder
+app.json = ModelJSONProvider(app)
 app.config['PROPAGATE_EXCEPTIONS'] = True
-app.config['RESTPLUS_JSON'] = {
-    'cls': DynamicJSONEncoder,
+app.config['RESTX_JSON'] = {
+    'default': json_default,
 }
 
-app.debug = strtobool(os.environ.get('DEBUG', 'false'))
+app.debug = os.environ.get('DEBUG', 'false').lower() in (
+    'y', 'yes', 't', 'true', 'on', '1')
 Bootstrap(app)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
@@ -69,7 +79,6 @@ def home():
 
 
 @app.route('/debug/')
-@jsonapi
 def test_encoding():
     """Test encoding."""
     page = 1

@@ -9,24 +9,22 @@ A Scraper to scrape http://www.haodoo.net
 
 # Requirements
 
-* Python 3
+* [uv](https://docs.astral.sh/uv/) (installs Python 3.12 automatically if needed)
 
 # Installation
 
 ```
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+uv sync
 ```
 
 # Run scraper
 
 ```
-python -m haodooscraper.scraper
+uv run python -m haodooscraper.scraper
 ```
 
 # Web
 
 ```
-python wsgi/application
+uv run python wsgi/application
 ```
