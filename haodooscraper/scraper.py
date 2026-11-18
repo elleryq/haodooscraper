@@ -4,6 +4,7 @@
 from multiprocessing import Pool
 from datetime import datetime
 import re
+import time
 import ast
 import requests
 import lxml.html
@@ -16,18 +17,28 @@ import traceback
 ONCLICK_PATTERN = re.compile(
     "(?P<quote>[\"'])(?P<_id>[^(?P=quote)]*)(?P=quote)")
 SET_TITLE_PATTERN = re.compile(
-    "SetTitle\((?P<quote>[\"'])(?P<title>[^(?P=quote)]*)(?P=quote)\)")
+    r"SetTitle\((?P<quote>[\"'])(?P<title>[^(?P=quote)]*)(?P=quote)\)")
 base_url = 'http://www.haodoo.net/'
+MAX_RETRIES = 3
+RETRY_DELAY = 5
 
 
-def scrape(url):
-    try:
-        r = requests.get(url, timeout=60)
-        # r.encoding = "big5"
-        return r.text
-    except Exception as e:
-        print('Got error when requesting {}'.format(url))
-        time.sleep(5)
+def scrape(url, retries=MAX_RETRIES, delay=RETRY_DELAY):
+    """
+    Fetch url and return its text, retrying on request errors.
+    Returns None if every attempt fails.
+    """
+    for attempt in range(1, retries + 1):
+        try:
+            r = requests.get(url, timeout=60)
+            # r.encoding = "big5"
+            return r.text
+        except requests.exceptions.RequestException as e:
+            print('Got error when requesting {} (attempt {}/{}): {}'.format(
+                url, attempt, retries, e))
+            if attempt < retries:
+                time.sleep(delay)
+    return None
 
 
 def save_bookpages(book_dict):
@@ -311,6 +322,8 @@ def get_suburl(url, page):
 def grab_and_analysis(book):
     # grab html
     html = scrape(book.url)
+    if html is None:
+        return []
 
     # analysis and store information into book
     return analysis_book_html_and_save(book, html)
@@ -328,6 +341,8 @@ def scrape_haodoo():
             for url in urls():
                 # print(url)
                 html = scrape(url)
+                if html is None:
+                    continue
                 parse_books_from_html(html)
 
                 page = 1
@@ -336,7 +351,7 @@ def scrape_haodoo():
                     #print(suburl)
                     if html.find(urlparse(suburl).query):
                         html = scrape(suburl)
-                        if html.find("<strong>404") != -1:
+                        if html is None or html.find("<strong>404") != -1:
                             break
                         parse_books_from_html(html)
                         page = page + 1
