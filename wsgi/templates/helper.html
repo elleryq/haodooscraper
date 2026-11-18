@@ -1,12 +1,18 @@
 {% macro render_pagination(pagination) %}
 <nav aria-label="Page navigation">
-  <ul class="pager">
+  <ul class="pagination justify-content-between">
   {% if pagination.has_prev %}
-    <li><a href="{{ url_for_other_page(pagination.page - 1) }}">上一頁</a></li>
+    <li class="page-item"><a class="page-link" href="{{ url_for_other_page(pagination.page - 1) }}">上一頁</a></li>
+  {% else %}
+    <li class="page-item invisible"><span class="page-link">上一頁</span></li>
   {% endif %}
   {% if pagination.has_next %}
-    <li><a href="{{ url_for_other_page(pagination.page + 1) }}">下一頁</a></li>
+    <li class="page-item"><a class="page-link" href="{{ url_for_other_page(pagination.page + 1) }}">下一頁</a></li>
   {% endif %}
   </ul>
 </nav>
 {% endmacro %}
+
+{% macro search_icon() -%}
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>
+{%- endmacro %}
