@@ -55,3 +55,6 @@ docs/_build/
 
 # uv
 .venv/
+
+#
+download_books/
