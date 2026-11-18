@@ -110,7 +110,7 @@ class HaodooScraperAPI(Resource):
         per_page = args.get('per_page', 10)
         q = args.get('q', '')
         return {'result': list(Volume.query_as_pagination(
-            q, page, PAGE_SIZE).items())}
+            q, page, per_page).items())}
 
 
 api.add_namespace(ns)
