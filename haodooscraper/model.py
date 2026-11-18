@@ -4,11 +4,20 @@ import os
 from sqlalchemy import (create_engine,
                         Table, Column, Integer, String, MetaData, ForeignKey,
                         or_)
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
-from sqlalchemy import func
-from flask_jsontools import JsonSerializableBase
+from sqlalchemy import func, inspect
+from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from haodooscraper.pagination import Pagination
+
+
+class JsonSerializableBase(object):
+    """
+    Declarative base mixin that serializes a model's columns to a dict.
+    The web app's JSON provider calls __json__() on any object that has it.
+    """
+
+    def __json__(self):
+        return {key: getattr(self, key)
+                for key in inspect(self).mapper.column_attrs.keys()}
 
 
 db_url = os.environ.get("OPENSHIFT_MYSQL_DB_URL", "")
@@ -123,7 +132,7 @@ class Volume(Base):
     def count(cls):
         return session.query(func.count(cls.id)).scalar()
 
-    def __json__(self, exluded_keys=set()):
+    def __json__(self):
         obj = super(Volume, self).__json__()
         if '_id' in obj:
             del obj['_id']

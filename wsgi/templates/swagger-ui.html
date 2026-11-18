@@ -9,67 +9,34 @@
 {{super()}}
 {% include 'swagger-ui-libs.html' %}
     <script type="text/javascript">
-        $(function () {
-            // Performance tuning for Highlight.js
-            hljs.configure({
-                highlightSizeThreshold: 5000
-            });
-
-            {% if config.SWAGGER_UI_LANGUAGES %}
-            // Pre load translate...
-            if(window.SwaggerTranslator) {
-                window.SwaggerTranslator.translate();
-            }
-            {% endif %}
-
-            window.swaggerUi = new SwaggerUi({
+        window.addEventListener('load', function () {
+            window.ui = new SwaggerUIBundle({
                 url: "{{ specs_url }}",
                 validatorUrl: "{{ config.SWAGGER_VALIDATOR_URL }}" || null,
-                dom_id: "swagger-ui-container",
+                dom_id: "#swagger-ui",
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset.slice(1) // No Topbar
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
                 supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
-                onComplete: function(swaggerApi, swaggerUi){
-                    if(typeof initOAuth == "function") {
-                        {% if config.SWAGGER_UI_OAUTH_CLIENT_ID -%}
-                            initOAuth({
-                                clientId: "{{ config.SWAGGER_UI_OAUTH_CLIENT_ID }}",
-                                realm: "{{ config.SWAGGER_UI_OAUTH_REALM }}",
-                                appName: "{{ config.SWAGGER_UI_OAUTH_APP_NAME }}"
-                            });
-                        {%- endif %}
-                    }
-
-                    {% if config.SWAGGER_UI_LANGUAGES %}
-                    if (window.SwaggerTranslator) {
-                        window.SwaggerTranslator.translate();
-                    }
-                    {% endif %}
-
-                    $('pre code').each(function(i, e) {
-                        hljs.highlightBlock(e)
-                    });
-                },
-                onFailure: function(data) {
-                    log("Unable to Load SwaggerUI");
-                },
-                jsonEditor: {{ config.SWAGGER_UI_JSONEDITOR | default(False) | string | lower }},
                 docExpansion: "{{ config.SWAGGER_UI_DOC_EXPANSION | default('none') }}"
             });
-            window.swaggerUi.load();
 
-            function log() {
-                if ('console' in window) {
-                    console.log.apply(console, arguments);
-                }
-            }
+            {% if config.SWAGGER_UI_OAUTH_CLIENT_ID -%}
+            window.ui.initOAuth({
+                clientId: "{{ config.SWAGGER_UI_OAUTH_CLIENT_ID }}",
+                realm: "{{ config.SWAGGER_UI_OAUTH_REALM }}",
+                appName: "{{ config.SWAGGER_UI_OAUTH_APP_NAME }}"
+            });
+            {%- endif %}
         });
     </script>
 {% endblock %}
 
 {% block page_content %}
-    <div class="row-fluid swagger-section">
-        <div class="swagger-ui-wrap"><div id="auth_container"></div></div>
-        <div id="message-bar" class="swagger-ui-wrap">&nbsp;</div>
-        <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
-    </div>
+    <div id="swagger-ui"></div>
     <hr/>
 {% endblock %}
