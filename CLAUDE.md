@@ -14,7 +14,12 @@ uv add <pkg>                             # add a dependency (updates pyproject.t
 
 uv run python -m haodooscraper.scraper   # full scrape (WIPES all tables first, then re-scrapes)
 uv run python wsgi/application           # dev web server on 127.0.0.1:8000
+
+docker compose up -d --build             # MySQL 8.4 + web; first start imports the 2017 OpenShift dump
+docker compose run --rm scraper          # scraper (profile "scrape"; WIPES tables)
 ```
+
+`docker/initdb/01-haodooscraper.sql.gz` is the legacy OpenShift MySQL dump trimmed to the `haodooscraper` database; see `docs/legacy-data-import.md` for how it was derived and what is in `data/` (untracked, contains secrets).
 
 Environment variables:
 - `OPENSHIFT_MYSQL_DB_URL` — if set (e.g. `mysql://user:pass@host:3306/`, see `example.env`), uses MySQL via PyMySQL with database `haodooscraper` appended; otherwise falls back to `sqlite:///db.sqlite3` relative to the CWD.

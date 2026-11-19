@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: haodooscraper
+      MYSQL_USER: haodoo
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-haodoo}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - db-data:/var/lib/mysql
+      # Runs only when the data volume is first initialised: imports the
+      # 2017-10-05 OpenShift snapshot (haodooscraper database only).
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  web:
+    build: .
+    environment:
+      OPENSHIFT_MYSQL_DB_URL: mysql://haodoo:${MYSQL_PASSWORD:-haodoo}@db:3306/
+      DEBUG: "false"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # WIPES all tables before re-scraping. Never starts with `up`; run it
+  # explicitly with: docker compose run --rm scraper
+  scraper:
+    build: .
+    profiles: ["scrape"]
+    environment:
+      OPENSHIFT_MYSQL_DB_URL: mysql://haodoo:${MYSQL_PASSWORD:-haodoo}@db:3306/
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "-m", "haodooscraper.scraper"]
+
+volumes:
+  db-data:

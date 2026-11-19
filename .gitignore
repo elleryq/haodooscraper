@@ -58,3 +58,6 @@ docs/_build/
 
 #
 download_books/
+
+# Legacy OpenShift backup and downloaded books (contains secrets; large)
+data/
